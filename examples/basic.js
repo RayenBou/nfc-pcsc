@@ -1,61 +1,109 @@
-"use strict";
+// const { NFC } = require("../src/index");
+// import pretty from "./pretty-logger";
 
-// #############
-// Example: Basic usage
-// - see "Basic usage" section in README for an explanation
-// #############
+// const nfc = new NFC();
+// const ndef = require("@taptrack/ndef");
 
-import { NFC } from '../src/index';
+// const encapsulate = (data, blockSize = 4) => {
+// 	if (data.length > 0xfffe) {
+// 		throw new Error("Maximal NDEF message size exceeded.");
+// 	}
 
+// 	const prefix = Buffer.allocUnsafe(data.length > 0xfe ? 4 : 2);
+// 	prefix[0] = 0x03; // NDEF type
+// 	if (data.length > 0xfe) {
+// 		prefix[1] = 0xff;
+// 		prefix.writeInt16BE(data.length, 2);
+// 	} else {
+// 		prefix[1] = data.length;
+// 	}
 
-const nfc = new NFC(); // optionally you can pass logger
+// 	const suffix = Buffer.from([0xfe]);
 
-nfc.on('reader', reader => {
+// 	const totalLength = prefix.length + data.length + suffix.length;
+// 	const excessLength = totalLength % blockSize;
+// 	const rightPadding = excessLength > 0 ? blockSize - excessLength : 0;
+// 	const newLength = totalLength + rightPadding;
 
-	console.log(`${reader.reader.name}  device attached`);
+// 	return Buffer.concat([prefix, data, suffix], newLength);
+// };
 
-	// enable when you want to auto-process ISO 14443-4 tags (standard=TAG_ISO_14443_4)
-	// when an ISO 14443-4 is detected, SELECT FILE command with the AID is issued
-	// the response is available as card.data in the card event
-	// you can set reader.aid to:
-	// 1. a HEX string (which will be parsed automatically to Buffer)
-	reader.aid = 'F222222222';
-	// 2. an instance of Buffer containing the AID bytes
-	// reader.aid = Buffer.from('F222222222', 'hex');
-	// 3. a function which must return an instance of a Buffer when invoked with card object (containing standard and atr)
-	//    the function may generate AIDs dynamically based on the detected card
-	// reader.aid = ({ standard, atr }) => {
-	//
-	// 	return Buffer.from('F222222222', 'hex');
-	//
-	// };
+// nfc.on("reader", (reader) => {
+// 	reader.aid = "F222222222";
+// 	let count = 1120;
+// 	let color = "red";
 
-	reader.on('card', card => {
+// 	reader.on("card", async (card) => {
+// 		try {
+// 			count++;
+// 			if (count < 375) {
+// 				color = "red";
+// 			} else if (count < 750) {
+// 				color = "blue";
+// 			} else if (count < 1125) {
+// 				color = "purple";
+// 			} else if (count < 1500) {
+// 				color = "orange";
+// 			}
 
-		// card is object containing following data
-		// [always] String type: TAG_ISO_14443_3 (standard nfc tags like MIFARE) or TAG_ISO_14443_4 (Android HCE and others)
-		// [always] String standard: same as type
-		// [only TAG_ISO_14443_3] String uid: tag uid
-		// [only TAG_ISO_14443_4] Buffer data: raw data from select APDU response
+// 			const uriRecord = ndef.Utils.createUriRecord(
+// 				"http://www.seasonspeak.fr/ethernighty"
+// 			);
 
-		console.log(`${reader.reader.name}  card detected`, card);
+// 			const textRecord = ndef.Utils.createTextRecord(
+// 				count.toString(),
+// 				"en"
+// 			);
 
+// 			const colorRecord = ndef.Utils.createTextRecord(color, "en");
+
+// 			const message = new ndef.Message([
+// 				uriRecord,
+// 				textRecord,
+// 				colorRecord,
+// 			]);
+// 			const bytes = message.toByteArray();
+// 			// convert the Uint8Array into to the Buffer and encapsulate it
+// 			const data = encapsulate(Buffer.from(bytes.buffer));
+
+// 			// data is instance of Buffer containing encapsulated NDEF message
+// 			await reader.write(4, data);
+// 			console.log(`records written, count: ${count}, color: ${color}`);
+// 		} catch (err) {
+// 			console.error(`error while writing records`, err);
+// 		}
+// 	});
+// });
+
+const { NFC } = require("../src/index");
+const ndef = require("@taptrack/ndef");
+
+const nfc = new NFC();
+
+nfc.on("reader", (reader) => {
+	reader.aid = "F222222222";
+
+	reader.on("card", async (card) => {
+		try {
+			const data = await reader.read(4, 176);
+
+			const message = ndef.Message.fromBytes(data);
+			var parsedRecords = message.getRecords();
+
+			console.log("Raw data:", data);
+			console.log("Parsed data:");
+
+			var uri = ndef.Utils.resolveUriRecordToString(parsedRecords[0]);
+			console.log("URI: " + uri);
+
+			var recordContents = ndef.Utils.resolveTextRecord(parsedRecords[1]);
+
+			console.log("id: " + recordContents.content);
+			var recordContents = ndef.Utils.resolveTextRecord(parsedRecords[2]);
+
+			console.log("color: " + recordContents.content);
+		} catch (err) {
+			console.error(`error while reading records`, err);
+		}
 	});
-
-	reader.on('card.off', card => {
-		console.log(`${reader.reader.name}  card removed`, card);
-	});
-
-	reader.on('error', err => {
-		console.log(`${reader.reader.name}  an error occurred`, err);
-	});
-
-	reader.on('end', () => {
-		console.log(`${reader.reader.name}  device removed`);
-	});
-
-});
-
-nfc.on('error', err => {
-	console.log('an error occurred', err);
 });

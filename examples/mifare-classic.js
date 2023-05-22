@@ -47,18 +47,21 @@
 // 	block 11 - sector trailer 2
 // ... and so on ...
 
-import { NFC, TAG_ISO_14443_3, TAG_ISO_14443_4, KEY_TYPE_A, KEY_TYPE_B } from '../src/index';
-import pretty from './pretty-logger';
-
+import {
+	NFC,
+	TAG_ISO_14443_3,
+	TAG_ISO_14443_4,
+	KEY_TYPE_A,
+	KEY_TYPE_B,
+} from "../src/index";
+import pretty from "./pretty-logger";
 
 const nfc = new NFC(); // const nfc = new NFC(pretty); // optionally you can pass logger to see internal debug logs
 
-nfc.on('reader', async reader => {
-
+nfc.on("reader", async (reader) => {
 	pretty.info(`device attached`, reader);
 
-	reader.on('card', async card => {
-
+	reader.on("card", async (card) => {
 		// MIFARE Classic is ISO/IEC 14443-3 tag
 		// skip other standards
 		if (card.type !== TAG_ISO_14443_3) {
@@ -87,11 +90,10 @@ nfc.on('reader', async reader => {
 		// - obsolete - (default - false for PC/SC V2.07) use true for PC/SC V2.01
 
 		// Don't forget to fill YOUR keys and types! (default ones are stated below)
-		const key = 'FFFFFFFFFFFF'; // key must be a 12-chars HEX string, an instance of Buffer, or array of bytes
+		const key = "FFFFFFFFFFFF"; // key must be a 12-chars HEX string, an instance of Buffer, or array of bytes
 		const keyType = KEY_TYPE_A;
 
 		try {
-
 			// we want to authenticate sector 1
 			// authenticating one block within the sector will authenticate all blocks within that sector
 			// so in our case, we choose block 4 that is within the sector 1, all blocks (4, 5, 6, 7)
@@ -101,17 +103,18 @@ nfc.on('reader', async reader => {
 			// Note: writing might require to authenticate with a different key (based on the sector access conditions)
 
 			pretty.info(`sector 1 successfully authenticated`, reader);
-
 		} catch (err) {
-			pretty.error(`error when authenticating block 4 within the sector 1`, reader, err);
+			pretty.error(
+				`error when authenticating block 4 within the sector 1`,
+				reader,
+				err
+			);
 			return;
 		}
-
 
 		// example reading 16 bytes (one block) assuming containing 32bit integer
 		// !!! note that we don't need 16 bytes - 32bit integer takes only 4 bytes !!!
 		try {
-
 			// reader.read(blockNumber, length, blockSize = 4, packetSize = 16)
 			// - blockNumber - memory block number where to start reading
 			// - length - how many bytes to read
@@ -129,16 +132,13 @@ nfc.on('reader', async reader => {
 			const payload = data.readInt32BE(0);
 
 			pretty.info(`data converted`, reader, payload);
-
 		} catch (err) {
 			pretty.error(`error when reading data`, reader, err);
 		}
 
-
 		// example write 16 bytes containing 32bit integer
 		// !!! note that we don't need 16 bytes - 32bit integer takes just 4 bytes !!!
 		try {
-
 			// reader.write(blockNumber, data, blockSize = 4, packetSize = 16)
 			// - blockNumber - memory block number where to start writing
 			// - data - what to write
@@ -157,25 +157,20 @@ nfc.on('reader', async reader => {
 			await reader.write(4, data, 16); // blockSize=16 must specified for MIFARE Classic cards
 
 			pretty.info(`data written`, reader, randomNumber, data);
-
 		} catch (err) {
 			pretty.error(`error when writing data`, reader, err);
 		}
-
-
 	});
 
-	reader.on('error', err => {
+	reader.on("error", (err) => {
 		pretty.error(`an error occurred`, reader, err);
 	});
 
-	reader.on('end', () => {
+	reader.on("end", () => {
 		pretty.info(`device removed`, reader);
 	});
-
-
 });
 
-nfc.on('error', err => {
+nfc.on("error", (err) => {
 	pretty.error(`an error occurred`, err);
 });
