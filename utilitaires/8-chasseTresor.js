@@ -15,14 +15,6 @@ function generateId() {
 	const id = crypto.randomBytes(4).toString("hex");
 	return parseInt(id, 16).toString().substring(0, 8);
 }
-// fonction de cryptage de la route avec une clé
-function encryptUrlId(id) {
-	const key = id
-		.match(/\d/g)
-		.reduce((acc, digit) => acc + parseInt(digit), 0);
-	const encryptedId = id + "-" + key.toString().padStart(3, "0");
-	return encryptedId;
-}
 
 const encapsulate = (data, blockSize = 4) => {
 	if (data.length > 0xfffe) {
@@ -50,77 +42,26 @@ const encapsulate = (data, blockSize = 4) => {
 
 console.log(
 	"\x1b[1m\x1b[32m" +
-		"Bienvenue, ce programme permet d'ecrire sur un badge" +
+		"Bienvenue, ce programme permet de generer des balise de chasse au tresor , merci de scanner les balises pour les generer" +
 		"\x1b[0m"
 );
-
 nfc.on("reader", (reader) => {
 	reader.aid = "F222222222";
-	let tagId = 850;
-	let color = "red";
-	// cle de cryptage
-	const EncryptionKey = 8;
+
 	//////////////////
 	reader.on("card", async (card) => {
 		try {
-			//////////////// application de la couleur en fonction du numero de badge
-			tagId++;
-			if (tagId < 375) {
-				color = "red";
-			} else if (tagId < 750) {
-				color = "blu";
-			} else if (tagId < 1125) {
-				color = "pur";
-			} else if (tagId < 1500) {
-				color = "ora";
-			}
-			// Ajouter un 0 devant le tagId si celui-ci ne comporte que 3 chiffres
-			const paddedTagId = tagId.toString().padStart(4, "0");
-
-			////////////////// cryptage des donnees
-
-			// nombre du badge
-			const encryptedNumber = encryptNumber(paddedTagId, EncryptionKey);
-
-			//couleur du badge
-			const encryptedColor = encryptString(color, EncryptionKey);
-
-			//uniq id du badge
-			let user = generateId();
-
-			const encryptedId = encryptNumber1(user, EncryptionKey);
-
-			// cryptage de la route avec une clé
-			const encryptedUrlId = encryptUrlId(user);
+			let treasureId = generateId();
 
 			///////////// encodage du message
 
 			// url du badge (pas de cryptage car doit etre lisible par telephone)
 			const uriRecord = ndef.Utils.createUriRecord(
-				`http://192.168.1.177:8000/player/${encryptedUrlId}`
+				`http://192.168.1.177:8000/treasureHunt/${treasureId}`
 			);
-
-			const colorRecord = ndef.Utils.createTextRecord(
-				encryptedColor,
-				"en"
-			);
-			const numberRecord = ndef.Utils.createTextRecord(
-				encryptedNumber,
-				"en"
-			);
-
-			const userId = ndef.Utils.createTextRecord(encryptedId, "en");
-
-			/////////// affichage des donnees enregistré sur le badge
-			console.log(encryptedColor, encryptedNumber, encryptedId);
 
 			////////////// enpacketage des donnees
-			const message = new ndef.Message([
-				uriRecord,
-				numberRecord,
-				colorRecord,
-				userId,
-			]);
+			const message = new ndef.Message([uriRecord]);
 			//////////////// conversion en bytes
 			const bytes = message.toByteArray();
 			// convert the Uint8Array into to the Buffer and encapsulate it
@@ -130,17 +71,15 @@ nfc.on("reader", (reader) => {
 			//////////////// ecriture du message sur badge
 			await reader.write(4, data);
 			////////////// message de validation de l'ecriture du badge
-			console.log(
-				`records written, tagId: ${tagId}, color: ${color}, userId: ${user}`
-			);
+			console.log(`records written, treasureId: ${treasureId}`);
 
 			///////////////// creation de l'utilisateur en bdd
-			const dataArray = [user, tagId];
+			const dataArray = [treasureId];
 			const agent = new https.Agent({
 				rejectUnauthorized: false,
 			});
 			const api = axios.create({
-				baseURL: "https://localhost:8000/api/",
+				baseURL: "https://localhost:8000/api",
 				withCredentials: true,
 				headers: {
 					"Content-Type": "application/json",
@@ -153,7 +92,7 @@ nfc.on("reader", (reader) => {
 			});
 
 			try {
-				const response = await api.post("participant", {
+				const response = await api.post("treasureHunt", {
 					data: dataArray,
 				});
 				console.log(response.data);

@@ -27,7 +27,7 @@ const agent = new https.Agent({
 });
 
 const api = axios.create({
-	baseURL: "https://localhost:8000/ethernighty/api/",
+	baseURL: "https://localhost:8000/api/",
 	withCredentials: true,
 	headers: {
 		"Content-Type": "application/json",
@@ -38,6 +38,12 @@ const api = axios.create({
 	},
 	httpsAgent: agent, // configuration de l'agent pour la communication https
 });
+
+console.log(
+	"\x1b[1m\x1b[32m" +
+		"Bienvenue, ce programme dois etre ouvert en continue au Bar pour receptionner les scannage de badge !" +
+		"\x1b[0m"
+);
 
 nfc.on("reader", (reader) => {
 	reader.aid = "F222222222";
@@ -94,35 +100,9 @@ nfc.on("reader", (reader) => {
 			const dataArray2 = [uri, id, color];
 
 			try {
-				const response = await api.post("data", {
+				const response = await api.post("bar", {
 					data: dataArray,
 				});
-
-				if (response.data.gagnant === "oui") {
-					const api2 = axios.create({
-						baseURL: "https://localhost:8000/ethernighty/winner/",
-						withCredentials: true,
-						headers: {
-							"Content-Type": "application/json",
-							"Access-Control-Allow-Origin": "*",
-							"Access-Control-Allow-Headers":
-								"Origin, X-Requested-With, Content-Type, Accept",
-							"Access-Control-Allow-Methods":
-								"GET, POST, PUT, DELETE",
-						},
-						httpsAgent: agent, // configuration de l'agent pour la communication https
-					});
-
-					try {
-						// const response2 = await api2.post("data", {
-						// 	data: dataArray2,
-						// });
-						// console.log(response2.data);
-					} catch (error) {
-						console.error(error);
-					}
-				}
-
 				console.log(response.data);
 			} catch (error) {
 				console.error(error);

@@ -25,7 +25,11 @@ const EncryptionKey = 8;
 const agent = new https.Agent({
 	rejectUnauthorized: false,
 });
-
+console.log(
+	"\x1b[1m\x1b[32m" +
+		"Bienvenue, ce programme permet de verifier les gagnant de boissons" +
+		"\x1b[0m"
+);
 nfc.on("reader", (reader) => {
 	reader.aid = "F222222222";
 	reader.on("card", async (card) => {
@@ -63,7 +67,7 @@ nfc.on("reader", (reader) => {
 
 			try {
 				const api = axios.create({
-					baseURL: "https://localhost:8000/ethernighty/winner/",
+					baseURL: "https://localhost:8000/api/",
 					withCredentials: true,
 					headers: {
 						"Content-Type": "application/json",
@@ -77,10 +81,11 @@ nfc.on("reader", (reader) => {
 				});
 
 				try {
-					const response2 = await api.post("data", {
+					const response2 = await api.post("winner", {
 						data: dataArray,
 					});
-					console.log(response2.data);
+
+					console.log("tagId: " + tagId, response2.data);
 				} catch (error) {
 					console.error(error);
 				}

@@ -46,6 +46,7 @@
     "game": "node -r @babel/register  utilitaires/6-game.js",
     "winner": "node -r @babel/register  utilitaires/5-winner_check.js",
     "qrcode-generator": "node -r @babel/register  utilitaires/7-qrcode_generator.js",
+    "tresor": "node -r @babel/register  utilitaires/8-chasseTresor.js",
     "api1": "node -r @babel/register examples/1-api.js",
     "example-from-readme-3": "node -r @babel/register examples/from-readme-3.js",
     "led": "node -r @babel/register examples/led.js",

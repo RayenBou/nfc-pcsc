@@ -20,6 +20,12 @@ import https from "https";
 // cle de decryptage
 const EncryptionKey = 8;
 //////////////////
+
+console.log(
+	"\x1b[1m\x1b[32m" +
+		"Bienvenue, ce programme permet de scanner les participant au jeu" +
+		"\x1b[0m"
+);
 nfc.on("reader", (reader) => {
 	reader.aid = "F222222222";
 
@@ -33,7 +39,6 @@ nfc.on("reader", (reader) => {
 			console.log("Données:");
 
 			var uri = ndef.Utils.resolveUriRecordToString(parsedRecords[0]);
-			console.log("URI: " + uri);
 
 			var tagIdEncrypted = ndef.Utils.resolveTextRecord(parsedRecords[1]);
 			var colorEncrypted = ndef.Utils.resolveTextRecord(parsedRecords[2]);
@@ -47,7 +52,6 @@ nfc.on("reader", (reader) => {
 
 			console.log("id: " + tagId);
 			console.log("color: " + color);
-			console.log("userId: " + userId);
 
 			/////////////////////////// envoie dans la route d'enregistrement en db
 
@@ -57,7 +61,7 @@ nfc.on("reader", (reader) => {
 				rejectUnauthorized: false,
 			});
 			const api = axios.create({
-				baseURL: "https://localhost:8000/ethernighty/api/",
+				baseURL: "https://localhost:8000/api/",
 				withCredentials: true,
 				headers: {
 					"Content-Type": "application/json",

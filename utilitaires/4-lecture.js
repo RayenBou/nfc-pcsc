@@ -16,6 +16,12 @@ const nfc = new NFC();
 // cle de decryptage
 const EncryptionKey = 8;
 //////////////////
+console.log(
+	"\x1b[1m\x1b[32m" +
+		"Bienvenue, ce programme permet de lire les badge NFC, merci de poser un badge sur le lecteur pour commencer" +
+		"\x1b[0m"
+);
+
 nfc.on("reader", (reader) => {
 	reader.aid = "F222222222";
 

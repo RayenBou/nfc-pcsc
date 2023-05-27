@@ -17,7 +17,7 @@ const {
 	encryptNumber1,
 	decryptNumber1,
 } = require("./cryptage");
-
+const chalk = require("chalk");
 // cle de decryptage
 const EncryptionKey = 8;
 //////////////////
@@ -25,6 +25,12 @@ const EncryptionKey = 8;
 const agent = new https.Agent({
 	rejectUnauthorized: false,
 });
+
+console.log(
+	"\x1b[1m\x1b[32m" +
+		"Bienvenue, ce programme permet de scanner un badge afin de generer un qr code pour l'utilisateur" +
+		"\x1b[0m"
+);
 
 nfc.on("reader", (reader) => {
 	reader.aid = "F222222222";
@@ -63,7 +69,7 @@ nfc.on("reader", (reader) => {
 
 			try {
 				const api = axios.create({
-					baseURL: "https://localhost:8000/ethernighty/dashboard/",
+					baseURL: "https://localhost:8000/api/",
 					withCredentials: true,
 					headers: {
 						"Content-Type": "application/json",
@@ -77,10 +83,16 @@ nfc.on("reader", (reader) => {
 				});
 
 				try {
-					const response2 = await api.post("data", {
+					const response2 = await api.post("dashboard", {
 						data: dataArray,
 					});
-					console.log(response2.data);
+
+					console.log(
+						"tagId: " + tagId,
+						"couleur: " + color,
+						"lien: " + chalk.blue.underline(response2.data)
+					);
+					// console.log(response2.data);
 				} catch (error) {
 					console.error(error);
 				}
