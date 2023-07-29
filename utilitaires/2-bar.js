@@ -6,6 +6,8 @@
 
 const { NFC } = require("../src/index");
 const ndef = require("@taptrack/ndef");
+const token = require("./token");
+const EncryptionKey = require("./encryptionKey");
 import axios from "axios";
 import https from "https";
 const nfc = new NFC();
@@ -17,10 +19,6 @@ const {
 	encryptNumber1,
 	decryptNumber1,
 } = require("./cryptage");
-
-// cle de decryptage
-const EncryptionKey = 8;
-//////////////////
 
 const agent = new https.Agent({
 	rejectUnauthorized: false,
@@ -38,6 +36,19 @@ const api = axios.create({
 	},
 	httpsAgent: agent, // configuration de l'agent pour la communication https
 });
+
+// const api = axios.create({
+// 	baseURL: "https://ethernighty.seasonspeak.fr/api/",
+// 	withCredentials: true,
+// 	headers: {
+// 		"Content-Type": "application/json",
+// 		"Access-Control-Allow-Origin": "https://ethernighty.seasonspeak.fr/",
+// 		"Access-Control-Allow-Headers":
+// 			"Origin, X-Requested-With, Content-Type, Accept",
+// 		"Access-Control-Allow-Methods": "POST",
+// 	},
+// 	// configuration de l'agent pour la communication https
+// });
 
 console.log(
 	"\x1b[1m\x1b[32m" +
@@ -96,12 +107,12 @@ nfc.on("reader", (reader) => {
 			// 		break;
 			// }
 
-			const dataArray = [uri, id, color];
-			const dataArray2 = [uri, id, color];
+			const dataArray = [id, color];
 
 			try {
 				const response = await api.post("bar", {
 					data: dataArray,
+					token: token,
 				});
 				console.log(response.data);
 			} catch (error) {

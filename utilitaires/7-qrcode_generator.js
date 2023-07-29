@@ -18,9 +18,8 @@ const {
 	decryptNumber1,
 } = require("./cryptage");
 const chalk = require("chalk");
-// cle de decryptage
-const EncryptionKey = 8;
-//////////////////
+const token = require("./token");
+const EncryptionKey = require("./encryptionKey");
 
 const agent = new https.Agent({
 	rejectUnauthorized: false,
@@ -85,6 +84,7 @@ nfc.on("reader", (reader) => {
 				try {
 					const response2 = await api.post("dashboard", {
 						data: dataArray,
+						token: token,
 					});
 
 					console.log(

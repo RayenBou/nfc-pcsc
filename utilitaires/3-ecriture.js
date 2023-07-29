@@ -6,6 +6,8 @@ const { NFC } = require("../src/index");
 import axios from "axios";
 import https from "https";
 const nfc = new NFC();
+const token = require("./token");
+const EncryptionKey = require("./encryptionKey");
 const ndef = require("@taptrack/ndef");
 const { encryptString, encryptNumber, encryptNumber1 } = require("./cryptage");
 
@@ -58,9 +60,7 @@ nfc.on("reader", (reader) => {
 	reader.aid = "F222222222";
 	let tagId = 850;
 	let color = "red";
-	// cle de cryptage
-	const EncryptionKey = 8;
-	//////////////////
+
 	reader.on("card", async (card) => {
 		try {
 			//////////////// application de la couleur en fonction du numero de badge
@@ -96,8 +96,11 @@ nfc.on("reader", (reader) => {
 			///////////// encodage du message
 
 			// url du badge (pas de cryptage car doit etre lisible par telephone)
+			// const uriRecord = ndef.Utils.createUriRecord(
+			// 	`http://192.168.1.177:8000/player/${encryptedUrlId}`
+			// );
 			const uriRecord = ndef.Utils.createUriRecord(
-				`http://192.168.1.177:8000/player/${encryptedUrlId}`
+				`https://ethernighty.seasonspeak.fr/player/${encryptedUrlId}`
 			);
 
 			const colorRecord = ndef.Utils.createTextRecord(
@@ -135,7 +138,7 @@ nfc.on("reader", (reader) => {
 			);
 
 			///////////////// creation de l'utilisateur en bdd
-			const dataArray = [user, tagId];
+			const dataArray = [user, tagId, color];
 			const agent = new https.Agent({
 				rejectUnauthorized: false,
 			});
@@ -151,10 +154,24 @@ nfc.on("reader", (reader) => {
 				},
 				httpsAgent: agent, // configuration de l'agent pour la communication https
 			});
+			// const api = axios.create({
+			// 	baseURL: "https://ethernighty.seasonspeak.fr/api/",
+			// 	withCredentials: true,
+			// 	headers: {
+			// 		"Content-Type": "application/json",
+			// 		"Access-Control-Allow-Origin":
+			// 			"https://ethernighty.seasonspeak.fr/",
+			// 		"Access-Control-Allow-Headers":
+			// 			"Origin, X-Requested-With, Content-Type, Accept",
+			// 		"Access-Control-Allow-Methods": "POST",
+			// 	},
+			// 	// httpsAgent: agent, // configuration de l'agent pour la communication https
+			// });
 
 			try {
 				const response = await api.post("participant", {
 					data: dataArray,
+					token: token,
 				});
 				console.log(response.data);
 			} catch (error) {

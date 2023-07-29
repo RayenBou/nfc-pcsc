@@ -1,3 +1,3 @@
 @echo off
-cd C:\Users\rayen\Desktop\PROJET-DEV\symfony\test\test-nfc\nfc-pcsc\
+cd C:\Users\rayen\Desktop\PROJET-DEV\symfony\Seasons Peak projet\ethernighty\nfc-pcsc\
 npm run winner

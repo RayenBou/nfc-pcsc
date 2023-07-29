@@ -6,6 +6,7 @@
 
 const { NFC } = require("../src/index");
 const ndef = require("@taptrack/ndef");
+const token = require("./token");
 import axios from "axios";
 import https from "https";
 const nfc = new NFC();
@@ -18,9 +19,7 @@ const {
 	decryptNumber1,
 } = require("./cryptage");
 
-// cle de decryptage
-const EncryptionKey = 8;
-//////////////////
+const EncryptionKey = require("./encryptionKey");
 
 const agent = new https.Agent({
 	rejectUnauthorized: false,
@@ -66,23 +65,37 @@ nfc.on("reader", (reader) => {
 			const dataArray = [tagId, userId, color];
 
 			try {
+				// 	const api = axios.create({
+				// 		baseURL: "https://localhost:8000/api/",
+				// 		withCredentials: true,
+				// 		headers: {
+				// 			"Content-Type": "application/json",
+				// 			"Access-Control-Allow-Origin": "*",
+				// 			"Access-Control-Allow-Headers":
+				// 				"Origin, X-Requested-With, Content-Type, Accept",
+				// 			"Access-Control-Allow-Methods":
+				// 				"GET, POST, PUT, DELETE",
+				// 		},
+				// 		httpsAgent: agent, // configuration de l'agent pour la communication https
+				// 	});
 				const api = axios.create({
-					baseURL: "https://localhost:8000/api/",
+					baseURL: "https://ethernighty.seasonspeak.fr/api/",
 					withCredentials: true,
 					headers: {
 						"Content-Type": "application/json",
-						"Access-Control-Allow-Origin": "*",
+						"Access-Control-Allow-Origin":
+							"https://ethernighty.seasonspeak.fr/",
 						"Access-Control-Allow-Headers":
 							"Origin, X-Requested-With, Content-Type, Accept",
-						"Access-Control-Allow-Methods":
-							"GET, POST, PUT, DELETE",
+						"Access-Control-Allow-Methods": "POST",
 					},
-					httpsAgent: agent, // configuration de l'agent pour la communication https
+					// configuration de l'agent pour la communication https
 				});
 
 				try {
 					const response2 = await api.post("winner", {
 						data: dataArray,
+						token: token,
 					});
 
 					console.log("tagId: " + tagId, response2.data);

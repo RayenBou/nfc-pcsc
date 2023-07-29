@@ -13,13 +13,10 @@ const {
 	decryptNumber1,
 } = require("./cryptage");
 const nfc = new NFC();
-
+const token = require("./token");
+const EncryptionKey = require("./encryptionKey");
 import axios from "axios";
 import https from "https";
-
-// cle de decryptage
-const EncryptionKey = 8;
-//////////////////
 
 console.log(
 	"\x1b[1m\x1b[32m" +
@@ -76,6 +73,7 @@ nfc.on("reader", (reader) => {
 			try {
 				const response = await api.post("game", {
 					data: dataArray,
+					token: token,
 				});
 				console.log(response.data);
 			} catch (error) {

@@ -7,6 +7,7 @@ import axios from "axios";
 import https from "https";
 const nfc = new NFC();
 const ndef = require("@taptrack/ndef");
+const token = require("./token");
 const { encryptString, encryptNumber, encryptNumber1 } = require("./cryptage");
 
 // generation d'un id unique
@@ -94,6 +95,7 @@ nfc.on("reader", (reader) => {
 			try {
 				const response = await api.post("treasureHunt", {
 					data: dataArray,
+					token: token,
 				});
 				console.log(response.data);
 			} catch (error) {
