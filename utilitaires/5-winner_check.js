@@ -65,19 +65,19 @@ nfc.on("reader", (reader) => {
 			const dataArray = [tagId, userId, color];
 
 			try {
-				// 	const api = axios.create({
-				// 		baseURL: "https://localhost:8000/api/",
-				// 		withCredentials: true,
-				// 		headers: {
-				// 			"Content-Type": "application/json",
-				// 			"Access-Control-Allow-Origin": "*",
-				// 			"Access-Control-Allow-Headers":
-				// 				"Origin, X-Requested-With, Content-Type, Accept",
-				// 			"Access-Control-Allow-Methods":
-				// 				"GET, POST, PUT, DELETE",
-				// 		},
-				// 		httpsAgent: agent, // configuration de l'agent pour la communication https
-				// 	});
+				// const api = axios.create({
+				// 	baseURL: "https://localhost:8000/api/",
+				// 	withCredentials: true,
+				// 	headers: {
+				// 		"Content-Type": "application/json",
+				// 		"Access-Control-Allow-Origin": "*",
+				// 		"Access-Control-Allow-Headers":
+				// 			"Origin, X-Requested-With, Content-Type, Accept",
+				// 		"Access-Control-Allow-Methods":
+				// 			"GET, POST, PUT, DELETE",
+				// 	},
+				// 	httpsAgent: agent, // configuration de l'agent pour la communication https
+				// });
 				const api = axios.create({
 					baseURL: "https://ethernighty.seasonspeak.fr/api/",
 					withCredentials: true,

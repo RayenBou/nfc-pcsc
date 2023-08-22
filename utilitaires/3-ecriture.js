@@ -58,7 +58,7 @@ console.log(
 
 nfc.on("reader", (reader) => {
 	reader.aid = "F222222222";
-	let tagId = 850;
+	let tagId = 860;
 	let color = "red";
 
 	reader.on("card", async (card) => {
@@ -101,6 +101,7 @@ nfc.on("reader", (reader) => {
 			// );
 			const uriRecord = ndef.Utils.createUriRecord(
 				`https://ethernighty.seasonspeak.fr/player/${encryptedUrlId}`
+				// `https://192.168.1.177:8000/player/${encryptedUrlId}`
 			);
 
 			const colorRecord = ndef.Utils.createTextRecord(
